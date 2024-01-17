@@ -1,0 +1,56 @@
+import { Meta } from '@storybook/addon-docs';
+import registerTugboat from './img/register-tugboat.png';
+import createPreviews from './img/create-previews.png';
+import developmentSettings from './img/development-settings.png';
+import mainSettings from './img/main-settings.png';
+
+<Meta title="Documentation/Configure Tugboat" />
+
+# Configure Tugboat
+
+Tugboat is a preview environment generator supported in this project. If you
+don't want or need Tugboat integration, please delete the `.tugboat` directory
+in the codebase and forget about it.
+
+## Supported features
+
+This project comes with Tugboat preconfigured to generate the following
+environments on each pull request:
+
+  - The **Storybook** widget catalog to preview the changes being proposed.
+  - A **vanilla Drupal** site pre-configured with a page to show how the widget
+    proposed in the PR will work in a Drupal environment.
+
+## Register the repository in Tugboat
+
+Once you have registered and decided which plan to use (you can start with the
+free plan and upgrade later if you feel the need of it), you will need to
+connect your repository with Tugboat.
+
+Read [the Tugboat documentation](https://docs.tugboatqa.com/setting-up-tugboat/)
+to do so, but here is a TL;DR.
+
+<img src={registerTugboat} alt="Create new project" />
+
+After connecting your repo with Tugboat, you'll see the branches in your repo.
+We'll treat `development` as the default base branch. PRs will likely be made
+against this branch to introduce new features or bug fixes.
+
+In order to leverage base previews in Tugboat (highly recommended) we'll need to
+create our base previews for the `development` and `main` branches.
+
+<img src={createPreviews} alt="Create previews" />
+
+The preview generated from `development` will be our base preview for the
+project.
+
+<img src={developmentSettings} alt="Development settings" />
+
+The `main` branch will be our baseline of what is in production, so any PR
+created against `main` will use this preview as a base. Learn more about preview
+environments and base previews in the official documentation.
+
+<img src={mainSettings} alt="Main settings" />
+
+Once this is configured, when a developer creates a new Pull Request, a new
+environment will be created for that PR in Tugboat.

@@ -1,0 +1,84 @@
+name: Publish Registry
+
+on:
+  push:
+    branches: [main, development]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install package dependencies
+        run: yarn install && yarn compile
+      - name: Extract branch name
+        shell: bash
+        run: echo "current_branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+        id: extract_branch
+      - name: Build the registry locally
+        run: |
+          mkdir --parents "${DIST_DIR}/widget-registry"
+          # Creates the JS & CSS files, and registry.json, and puts them in dist/widget-registry
+          yarn dlx @js-widgets/webpack-cli \
+            --debug \
+            --existing-registry="${PUBLIC_URL}/widget-registry/registry.json" \
+            --output-dir="${DIST_DIR}/widget-registry" \
+            .
+        env:
+          DEBUG: '*,-babel*,-eslint*'
+          PUBLIC_URL: https://js-widgets.github.io/registry-starterkit-react/${{ env.current_branch }}
+          PUBLIC_ASSETS_URL: https://js-widgets.github.io/registry-starterkit-react/${{ env.current_branch }}/static
+          DIST_DIR: dist/${{ env.current_branch }}
+          NODE_ENV: production
+      - name: Prepare public dirs
+        run: |
+          # The public files of each widget need to be moved to /static so they are uploaded correctly.
+          TEMP_DIR=$(mktemp --directory)
+          mkdir --parents "${TEMP_DIR}/static"
+          # Find all the folders with the name "public" and copy them to the temporary directory.
+          while IFS= read -r -d $'\0' directory; do
+            # From /path/to/src/apps/my-widget/public to ${TEMP_DIR}/static/my-widget
+            destination=$(echo "${directory}" |sed -e 's:.*/apps/::g' -e 's:/public::g')
+            cp --recursive "$directory" "$TEMP_DIR/$destination"
+          done < <(find "./src/apps" -maxdepth 2 -mindepth 1 -type d -name public -print0)
+          mv "${TEMP_DIR}" "${DIST_DIR}/static"
+        env:
+          DIST_DIR: dist/${{ env.current_branch }}
+      - name: Prepare translations
+        run: |
+          # The translations of each widget need to be moved to /translations so they are uploaded correctly.
+          TEMP_DIR=$(mktemp --directory)
+          mkdir --parents "${TEMP_DIR}/translations"
+          # Find all the folders with the name "compiledStrings" and copy them to the temporary directory.
+          while IFS= read -r -d $'\0' directory; do
+            # From /path/to/src/apps/my-widget/locales/compiledStrings/es.json to ${TEMP_DIR}/translations/my-widget/es.json
+            destination=$(echo "${directory}" |sed -e 's:.*/apps/::g' -e 's:/locales/compiledStrings::g')
+            cp --recursive "$directory" "$TEMP_DIR/$destination"
+          done < <(find "./src/apps" -type d -name compiledStrings -print0)
+          mv "${TEMP_DIR}" "${DIST_DIR}/translations"
+        env:
+          DIST_DIR: dist/${{ env.current_branch }}
+      - name: Build the catalog locally
+        run: |
+          echo "PUBLIC_ASSETS_URL=/static" > .env.local
+          yarn storybook:build --output-dir "${DIST_DIR}/storybook"
+        env:
+          DEBUG: '*,-babel*,-eslint*'
+          PUBLIC_URL: https://js-widgets.github.io/registry-starterkit-react/${{ env.current_branch }}/widget-registry
+          PUBLIC_ASSETS_URL: https://js-widgets.github.io/registry-starterkit-react/${{ env.current_branch }}/static
+          DIST_DIR: dist/${{ env.current_branch }}
+          NODE_ENV: production
+      - name: Deploy to GitHub Pages
+        if: ${{ success() }}
+        uses: crazy-max/ghaction-github-pages@v3
+        with:
+          target_branch: gh-pages
+          build_dir: dist
+          keep_history: true
+          jekyll: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

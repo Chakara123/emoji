@@ -1,0 +1,230 @@
+import { Meta } from '@storybook/addon-docs';
+
+<Meta title="Documentation/Contributing/Tips" />
+
+# Development Tips
+
+This page contains development tips and conventions in this project.
+
+## 1. Translations
+
+This project uses react-intl to translate the interface strings. To make your widget multilingual:
+
+- When rendering text on English, wrap it with a `<FormattedMessage>`. Running
+  `yarn lint:fix` will generate a unique ID for you. This ID is an alphanumeric code that changes when the default message
+  changes to ensure translations are up-to-date. For instance:
+
+```jsx
+import { FormattedMessage } from 'react-intl';
+// ...
+<FormattedMessage
+  defaultMessage="There was a problem loading your itinerary. Please try again later."
+  id="problems"
+/>;
+```
+
+- Once you have your app ready for translation, execute the script
+  `yarn extract`. This will scan for the messages in all the widgets and put
+  them in each of the `./src/apps/my-widget-id/locales/extractedStrings` folder.
+  You can use the `en.json` file to submit the string for translation. Once you
+  get the translated JSON files (`es.json`, `ja.json`, ...) add them to the
+  `extractedStrings` folder.
+- Before publishing your widget remember to "compile" the translations using
+  `yarn compile`.
+
+After following those steps the CI deployment will upload the translations to
+GitHub Pages under: https://your-GH-pages-url/translations/your-widget.
+
+**TIP:** if you want to check your translations locally (while running the app
+with `yarn start`) compile them, then copy the JSON files into
+`<root>/public/translations/<widget-id>/`. This is not needed if you are only
+looking at Storybook.
+
+## 2. Using media
+
+You can use images and other media assets normally within your application.
+Webpack will take care of inlining the assets if necessary. A possible way of
+doing this is:
+
+```jsx
+import imgData from '../assets/img/the-image.png';
+// ...
+<img src={imgData} alt="..." />;
+```
+
+Another way to add media is by putting it in the per-widget `public` directory.
+Lets say you store an image under `./src/apps/your-widget/public/foo/bar/my-image.png`.
+You can then reference this in your code using:
+
+```
+<img src={`${process.env.PUBLIC_ASSETS_URL}/your-widget/foo/bar/my-image.png`} alt="..." />
+```
+
+GitHub Actions will ensure that the image is uploaded to a public location,
+while Webpack will be in charge of replacing the string
+`'process.env.PUBLIC_ASSETS_URL'` with the actual URL when compiling the code
+(also in GitHub Actions). In coordination to that the `.env.local` file in your
+local environment should contain `PUBLIC_ASSETS_URL=/static`, so the media also
+works in Storybook.
+
+**Importing images directly into the component is encouraged**, but the `public`
+folder can be used when there are an abundance of images.
+
+See [Using the Public
+Folder](https://create-react-app.dev/docs/using-the-public-folder/) from the
+`create-react-app` documentation for more suggestions on when to use the
+`public` folder.
+
+# Shared code and features
+
+One of the main benefits of aggregating all the widgets under the same
+repository is sharing code. The following section lists some potential shared
+code structures.
+
+## 1. Story management
+
+All widgets **must** include stories. In order to simplify the creation process
+of a story we have developed the following decorators:
+
+- `storyWithTranslation()`: this helper will ease the process of adding i18n
+  support for your stories.
+- `storyWithClassNameWrapper()`: this helper will ease the process of providing
+  your sub-components with your app's unique identifier class when rendered in
+  isolation. (see [Styling a Widget](#6-styling-a-widget))
+
+## 2. Static assets
+
+This codebase generates several applications:
+
+- Storybook in the developer's local.
+- Storybook in the Tugboat preview.
+- Storybook as served from GitHub Pages.
+- The widget code in the Tugboat preview.
+- The widget for the production/sandbox registry.
+
+With this disparity of hosting infrastructure we need an abstraction for how to
+reference static assets for the widgets that all these applications can use.
+Examples of static assets include binary images, fonts, PDF files, etc. Use
+static assets for situations where you don't want to bundle these binaries with
+the JS bundle.
+
+In order to ensure that all the applications can access the assets the developer
+will use an evironment variable `$PUBLIC_ASSETS_URL`. Each application has been
+configured to translate that into the appropriate URL. See section
+`2. Using media` above for more details.
+
+You can find this configuration in `./storybook/main.js` in the `staticDirs`
+section. And in the `./scripts/ci/upload-public-dirs-to-cos.sh`.
+
+The following code will work in all the applications described above:
+
+```tsx
+<a
+  href={`${process.env.PUBLIC_ASSETS_URL}/emoji-cards/documents/history.pdf`}
+/>
+```
+
+For images you can use the helper component `PublicImage`.
+
+```tsx
+<PublicImage
+  imgPath="images/hello.png"
+  widgetId="emoji-cards"
+  className="screen"
+  alt={`An image showing a smiley face.`}
+/>
+```
+
+Note that in this example `hello.png` will be stored under `./src/apps/emoji-cards/public/images/hello.png`.
+
+## 3. Shared Typescript types
+
+Use of **TypeScript is required** for contributing to the Widget Registry. For the most part, contributors will need to write their own types as the apps are independent of one another.
+
+Widgets share some common features, therefore they share some helper code and TypeScript types. This covers things like language codes, color palettes, widget render function types, etc.
+
+You can find these types in the `./types` folder. Make sure to scan its contents before writing your types. We want to **standarize types across widgets** whenever possible.
+
+## 4. Shared Functionality
+
+There are some tasks that are common across all widgets, this is despite the fact that widgets are independent of one another. These include tasks like downloading translation files, massaging the widget input variables, dealing with common state management (like view port resize, changing the widget color scheme, etc.).
+
+If a piece of code is shared among two or more widgets, it should be moved up to the `./common` folder. Your widget **should not** import code from another widget's code base.
+
+## 5. Compile Widgets Locally
+
+Once your widget shows properly in Storybook you need to ensure that it will compile properly. If a widget does not compile properly it will not function in the CSM.
+
+```console
+# Set ups environment variables, like in the CI environment. Do this once per session.
+export PUBLIC_URL="https://js-widgets.github.io/registry-starterkit-react/widget-registry/sandbox/"
+export PUBLIC_ASSETS_URL="https://js-widgets.github.io/registry-starterkit-react/widget-registry/sandbox/static"
+
+# Re-set the output directory between runs. Do this every compilation
+rm --recursive --force widget-registry
+mkdir widget-registry
+# Run the compiler over the local code-base.
+DEBUG=*,-babel*,-eslint* NODE_ENV=production \
+  npx @js-widgets/webpack-cli \
+  --existing-registry="${PUBLIC_URL}/registry.json" \
+  --output-dir="$(pwd)/widget-registry" \
+  "$(pwd)" --debug
+```
+
+## 6. Styling a Widget
+
+We follow the established method for creating and importing SASS stylesheets as found in the [documentation for create-react-app](https://create-react-app.dev/docs/adding-a-stylesheet). **With one caveat: you must namespace all styles** in order to prevent style overrides on whatever page the widget will eventually be embedded.
+
+### `src/apps/emoji-selector/components/EmojiSelector.scss`
+
+```css
+.emoji-selector-widget {
+  &__wrapper {
+    max-width: 1584px;
+    margin: 0 auto;
+  }
+
+  &__message {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+```
+
+### `src/apps/emoji-selector/components/EmojiSelector.tsx`
+
+```tsx
+...
+import './EmojiSelector.scss';
+
+const EmojiSelector = () => {
+  ...
+  <div className="emoji-selector-widget"> // very important namespace
+    <div className="emoji-selector-widget__wrapper">...</div>
+    <div className="emoji-selector-widget__message">...</div>
+  </div>
+  ...
+}
+```
+
+When writing stories for your widget and rendering sub-components in isolation,
+you'll need to provide your unique class wrapper to that sub-component in order
+for your styles to apply correctly. To make this easier, use the
+`storyWithClassNameWrapper` decorator found in the `common` directory, providing
+it your app's unique identifier class.
+
+### `src/apps/emoji-selector/components/EmojiSelector.stories.tsx`
+
+```tsx
+import storyWithClassNameWrapper from '../../../common/storyWithClassNameWrapper';
+
+const stories: Meta = {
+  ...
+  decorators: [
+    ...
+    storyWithClassNameWrapper('emoji-selector-widget'),
+  ],
+};
+```

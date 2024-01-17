@@ -1,0 +1,108 @@
+services:
+  mysql:
+    image: tugboatqa/mariadb
+    commands:
+      ready:
+        - mysqladmin ping
+
+      init:
+        - mkdir -p /etc/service/mysql
+        - echo "#!/bin/sh" > /etc/service/mysql/run
+        - echo "mysql -e 'SET GLOBAL max_allowed_packet=134217728'" >> /etc/service/mysql/run
+        - chmod +x /etc/service/mysql/run
+
+      build:
+        - mysql -e 'SET GLOBAL max_allowed_packet=134217728'
+  storybook:
+    default: true
+    image: tugboatqa/httpd
+    commands:
+      init: |
+        set -eux
+        curl -sL https://deb.nodesource.com/setup_16.x | sh
+        apt-get install -y nodejs
+        npm install --global yarn
+        ln --symbolic --no-dereference --force "${TUGBOAT_ROOT}/dist/storybook" "${DOCROOT}"
+      build: |
+        yarn install
+        yarn compile
+        rm --recursive --force ./dist
+        cat "${TUGBOAT_ROOT}/.tugboat/.env.local" >> "${TUGBOAT_ROOT}/.env"
+        yarn storybook:build --debug-webpack
+        cd "${TUGBOAT_ROOT}/adr-docs"
+        yarn install && yarn build --prefix-paths
+        cd "${TUGBOAT_ROOT}"
+        ln --symbolic --no-dereference --force "${TUGBOAT_ROOT}/adr-docs/public" "${TUGBOAT_ROOT}/dist/storybook/architecture"
+
+    screenshot:
+      enabled: true
+      waitUntil:
+        - networkidle0
+
+    visualdiff:
+      enabled: true
+
+    lighthouse:
+      enabled: true
+      screen:
+        - desktop
+      config:
+        extends: lighthouse:default
+        settings:
+          onlyCategories:
+            - performance
+            - accessibility
+            - best-practices
+
+    urls:
+      emoji-cards:
+        - /iframe.html?&id=widgets-emoji-cards-widget--page&viewMode=story
+        - /iframe.html?&id=widgets-emoji-cards-components--plus-one&viewMode=story
+        - /iframe.html?&id=widgets-emoji-cards-components--spanish&viewMode=story
+
+  drupal:
+    image: q0rban/tugboat-drupal:9.4
+    expose: 80
+    http: false
+    depends: mysql
+    checkout: true
+
+    lighthouse:
+      enabled: false
+
+    visualdiff:
+      enabled: false
+
+    commands:
+      init: |
+        set -eux
+        curl -sL https://deb.nodesource.com/setup_16.x | sh
+        apt-get install -y nodejs
+        npm install --global yarn
+        # This is an environment variable we added in the Dockerfile that
+        # provides the path to Drupal composer root (not the web root).
+        cd $DRUPAL_COMPOSER_ROOT
+        composer require drupal/widget_type drupal/widget_instance drupal/widget_ingestion drupal/devel
+        # Install Drupal on the site.
+        # IMPORTANT: This relies on an environment variable set for this repo in
+        # the Tugboat UI by the name of ADMIN_PASSWORD.
+        vendor/bin/drush \
+          --yes \
+          --db-url=mysql://tugboat:tugboat@mysql:3306/tugboat \
+          --site-name=Widgets \
+          --account-name=admin \
+          --account-pass=${ADMIN_PASSWORD} \
+          site:install standard
+        # Enable the modules.
+        vendor/bin/drush --yes pm:enable widget_type widget_instance widget_ingestion dblog devel language content_translation
+        vendor/bin/drush --yes theme:enable claro olivero
+        # Set the Claro theme as default admin theme.
+        vendor/bin/drush --yes config-set system.theme admin claro
+        vendor/bin/drush --yes config-set system.theme default olivero
+        # Rebuild cache.
+        vendor/bin/drush cache:rebuild
+      build: ./.tugboat/scripts/build-drupal-preview.sh
+      online:
+        - ${DRUPAL_COMPOSER_ROOT}/vendor/bin/drush --yes --root $DRUPAL_DOCROOT widget_ingestion:ingest --force-ingestion
+        - ${DRUPAL_COMPOSER_ROOT}/vendor/bin/drush --yes --root $DRUPAL_DOCROOT php:script "${TUGBOAT_ROOT}/.tugboat/scripts/default-widget-instances.php"
+        - ${DRUPAL_COMPOSER_ROOT}/vendor/bin/drush --yes --root $DRUPAL_DOCROOT role:perm:add anonymous 'view widget instance'

@@ -1,0 +1,32 @@
+import { Meta } from '@storybook/addon-docs';
+import forkRepo from './img/fork-repository.png';
+import copyBranches from './img/copy-all-branches.png';
+import ghpConfig from './img/gh-pages-configuration.png';
+
+<Meta title="Documentation/Configure Deployment" />
+
+# Configure Deployment
+
+GitHub makes this process really easy.
+
+1. Fork the repository by clicking "Use this template".
+
+<img src={forkRepo} alt="Fork the repository" />
+
+2. Ensure you fork the repository with all the same branches. This is everything
+you need to do.
+
+<img src={copyBranches} alt="Copy all branches" />
+
+3. Check that the new repository has the correct configuration in GitHub Pages.
+
+<img src={ghpConfig} alt="Check GH Pages configuration" />
+
+4. Wait for GitHub Actions to deploy after the commit from the initial fork.
+
+5. Navigate to your new registry. Grab the URL from the settings page shown in
+the screenshot above (will only appear after the first deploy).
+  - Storybook (production): `<GH Pages URL>/main/storybook`.
+  - Storybook (development): `<GH Pages URL>/development/storybook`.
+  - Registry (production): `<GH Pages URL>/main/widget-registry/registry.json`.
+  - Registry (development): `<GH Pages URL>/development/widget-registry/registry.json`.
