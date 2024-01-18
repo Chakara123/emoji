@@ -85,10 +85,18 @@ const Card = ({
     <div
       style={{
         ...styles.cardContainer,
-        backgroundImage: `url(./static/emoji-cards/images/${imgPath})`,
+        backgroundImage: `url(https://dev-cdn-lighthouse.mars.com/adaptivemedia/rendition/id_aeb3f4e76098f20d4b7ee7af075cf7da28f6d7d2/name_aeb3f4e76098f20d4b7ee7af075cf7da28f6d7d2.jpg)`,
       }}
     >
       <h2 style={styles.emojiBg}>Header</h2>
+    </div>
+    <div
+      style={{
+        ...styles.cardContainer,
+        backgroundImage: `url(${process.env.PUBLIC_ASSETS_URL}/static/emoji-cards/images/${imgPath})`,
+      }}
+    >
+      <h2 style={styles.emojiBg}>Header 1</h2>
     </div>
   </div>
 );
