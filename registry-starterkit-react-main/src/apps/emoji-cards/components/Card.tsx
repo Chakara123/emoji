@@ -85,7 +85,7 @@ const Card = ({
     <div
       style={{
         ...styles.cardContainer,
-        backgroundImage: `url(${process.env.PUBLIC_ASSETS_URL}/emoji-cards/images/${imgPath})`,
+        backgroundImage: `url(./static/emoji-cards/images/${imgPath})`,
       }}
     >
       <h2 style={styles.emojiBg}>Header</h2>
