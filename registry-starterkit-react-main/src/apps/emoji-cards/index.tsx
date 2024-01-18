@@ -25,7 +25,7 @@ const render: RenderFn = async function (instanceId, langCode, origin, cb) {
   }
   ReactDOM.render(
     <IntlProvider locale={locale} messages={messages}>
-      <EmojiCards emoji={emoji || 'tada'} />
+      <EmojiCards emoji={''} />
     </IntlProvider>,
     element,
     () => cb(element),

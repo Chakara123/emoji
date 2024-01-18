@@ -35,6 +35,7 @@ const EmojiCards = ({ emoji }: EmojiCardsProps): ReactElement => {
   const [unicode, description, categoryIndex] = packedData;
 
   const category = DATA.categories[categoryIndex];
+  const imgPath = 'hello.jpg';
 
   // Pick a background color based on the character codes that make up the emoji
   let charCodeSum = 0;
@@ -56,6 +57,7 @@ const EmojiCards = ({ emoji }: EmojiCardsProps): ReactElement => {
       emoji={emoji}
       description={description}
       category={category}
+      imgPath={imgPath}
     />
   );
 };

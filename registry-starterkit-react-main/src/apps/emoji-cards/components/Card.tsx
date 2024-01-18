@@ -7,6 +7,7 @@ interface CardProps {
   emoji: string;
   description: ReactElement;
   category: ReactElement;
+  imgPath: string;
 }
 
 const styles: Record<string, CSSProperties> = {
@@ -17,8 +18,8 @@ const styles: Record<string, CSSProperties> = {
     display: 'flex',
     fontFamily: 'helvetica, sans-serif',
     overflow: 'hidden',
-    maxWidth: '26rem',
-    height: '13rem',
+    maxWidth: '63rem',
+    height: '23rem',
   },
   cardContainer: {
     background: 'rgba(0, 0, 0, 0.1)',
@@ -30,6 +31,7 @@ const styles: Record<string, CSSProperties> = {
     overflow: 'hidden',
     position: 'relative',
     padding: '1rem',
+    width: '100%',
   },
   emoji: {
     textShadow: '0 0 1rem rgba(0, 0, 0, 0.5)',
@@ -74,19 +76,19 @@ const Card = ({
   backgroundColor,
   unicode,
   nameRepeated,
+  imgPath,
   emoji,
   description,
   category,
 }: CardProps): ReactElement => (
   <div style={styles.card}>
-    <div style={{ ...styles.cardContainer, backgroundColor }}>
-      <span style={styles.emoji}>{unicode}</span>
-      <span style={styles.emojiBg}>{nameRepeated}</span>
-    </div>
-    <div style={styles.cardInfo}>
-      <span style={styles.cardName}>{emoji}</span>
-      <span style={styles.cardDescription}>“{description}”</span>
-      <span style={styles.cardCategory}>{category}</span>
+    <div
+      style={{
+        ...styles.cardContainer,
+        backgroundImage: `url(${process.env.PUBLIC_ASSETS_URL}/emoji-cards/images/${imgPath})`,
+      }}
+    >
+      <h2 style={styles.emojiBg}>Header</h2>
     </div>
   </div>
 );

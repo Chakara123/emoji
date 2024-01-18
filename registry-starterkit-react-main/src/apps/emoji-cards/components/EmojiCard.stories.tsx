@@ -16,20 +16,5 @@ export const PlusOne = Template.bind({});
 PlusOne.args = {
   emoji: '+1',
 };
-export const Cat = Template.bind({});
-Cat.args = {
-  emoji: 'cat',
-};
-
-export const Invalid = Template.bind({});
-Invalid.args = {
-  emoji: '',
-};
-
-export const Spanish = Template.bind({});
-Spanish.args = {
-  emoji: 'flag-es',
-};
-Spanish.decorators = [storyWithTranslation(Locale.ES)];
 
 export default stories;
