@@ -20,7 +20,7 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: 'helvetica, sans-serif',
     overflow: 'hidden',
     maxWidth: '100%',
-    height: '41rem',
+    height: '71rem',
   },
   cardContainer: {
     background: 'rgba(0, 0, 0, 0.1)',
@@ -34,19 +34,29 @@ const styles: Record<string, CSSProperties> = {
     width: '100%',
     backgroundRepeat: 'no-repeat',
     backgroundSize: '100%',
+    borderRadius: '0.5rem',
+    boxShadow: '0.125rem 0.125rem 0.5rem rgba(0, 0, 0, 0.1)',
   },
   emojiH2: {
-    margin: '5rem 0 0 4rem',
-    fontSize: '4rem',
+    margin: '0',
+    fontSize: '2rem',
     lineHeight: '100%',
     color: '#fff',
   },
   emojip: {
-    margin: '0.7rem 0px 0px 4rem',
-    fontSize: '1rem',
+    margin: '1rem 0 0 0',
+    fontSize: '1.5rem',
     width: '75%',
     color: '#fff',
     lineHeight: '23px',
+  },
+  emojicontent: {
+    width: '50%',
+    marginLeft: '3rem',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    height: '100%',
   },
   emoji: {
     textShadow: '0 0 1rem rgba(0, 0, 0, 0.5)',
@@ -100,18 +110,16 @@ const Card = ({
     <div
       style={{
         ...styles.cardContainer,
-        backgroundImage: `url(https://lhcdn-src.mars.com/adaptivemedia/rendition/id_ac78588966f544fa67fd81d5504e2ec5de2ba9f4/name_ac78588966f544fa67fd81d5504e2ec5de2ba9f4.jpg)`,
+        backgroundImage: `url(https://lhcdn-src.mars.com/adaptivemedia/rendition/id_919e6e013d38db09d6d399277723fba84757fc90/name_919e6e013d38db09d6d399277723fba84757fc90.png)`,
       }}
     >
-      <h2 style={styles.emojiH2}>A Year of Helping Cultivate Change</h2>
-      <p style={styles.emojip}>
-        One year ago on World Soil Day, the NUTRO™ brand announced the launch of
-        the Greater Ground™ program, which aims to grow awareness of the
-        importance of healthy soil and encourage select growers in our network
-        to implement to healthy soil practices by providing training, support
-        and funding. We want to celebrate all that's been accomplished in the
-        program's first year.
-      </p>
+      <div style={styles.emojicontent}>
+        <h2 style={styles.emojiH2}>SHEBA® KITTEN SOFT PATE IS HERE</h2>
+        <p style={styles.emojip}>
+          OSHEBA® PERFECT PORTIONS™ Wet Kitten Food gives your kittens the
+          nutrition they need and the flavors thy desire.
+        </p>
+      </div>
     </div>
   </div>
 );
