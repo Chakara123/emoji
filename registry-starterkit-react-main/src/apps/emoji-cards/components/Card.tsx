@@ -116,10 +116,13 @@ const Card = ({
       }}
     >
       <div style={styles.emojicontent}>
-        <h2 style={styles.emojiH2}>SHEBA® KITTEN SOFT PATE IS HERE</h2>
+        <h2 style={styles.emojiH2}>
+          Make Super Bowl LVIII even more satisfying.
+        </h2>
         <p style={styles.emojip}>
-          OSHEBA® PERFECT PORTIONS™ Wet Kitten Food gives your kittens the
-          nutrition they need and the flavors thy desire.
+          Made a Rookie Mistake® this season? Like sharing wing sauce on your
+          fave jersey... maybe you should have had a SNICKERS®. Because now you
+          can enter for the chance to win the ultimate home-gating package.
         </p>
       </div>
     </div>
