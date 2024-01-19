@@ -1,3 +1,4 @@
+import { background } from '@storybook/theming';
 import React, { CSSProperties, ReactElement } from 'react';
 
 interface CardProps {
@@ -18,20 +19,34 @@ const styles: Record<string, CSSProperties> = {
     display: 'flex',
     fontFamily: 'helvetica, sans-serif',
     overflow: 'hidden',
-    maxWidth: '63rem',
-    height: '23rem',
+    maxWidth: '100%',
+    height: '33rem',
   },
   cardContainer: {
     background: 'rgba(0, 0, 0, 0.1)',
     display: 'flex',
     flexDirection: 'column',
     fontSize: '8rem',
-    justifyContent: 'center',
     lineHeight: '100%',
     overflow: 'hidden',
     position: 'relative',
     padding: '1rem',
     width: '100%',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '100%',
+  },
+  emojiH2: {
+    margin: '5rem 0 0 4rem',
+    fontSize: '4rem',
+    lineHeight: '100%',
+    color: '#fff',
+  },
+  emojip: {
+    margin: '0.7rem 0px 0px 4rem',
+    fontSize: '1rem',
+    width: '75%',
+    color: '#fff',
+    lineHeight: '23px',
   },
   emoji: {
     textShadow: '0 0 1rem rgba(0, 0, 0, 0.5)',
@@ -85,18 +100,18 @@ const Card = ({
     <div
       style={{
         ...styles.cardContainer,
-        backgroundImage: `url(https://dev-cdn-lighthouse.mars.com/adaptivemedia/rendition/id_aeb3f4e76098f20d4b7ee7af075cf7da28f6d7d2/name_aeb3f4e76098f20d4b7ee7af075cf7da28f6d7d2.jpg)`,
+        backgroundImage: `url(https://lhcdn-src.mars.com/adaptivemedia/rendition/id_ac78588966f544fa67fd81d5504e2ec5de2ba9f4/name_ac78588966f544fa67fd81d5504e2ec5de2ba9f4.jpg)`,
       }}
     >
-      <h2 style={styles.emojiBg}>Header</h2>
-    </div>
-    <div
-      style={{
-        ...styles.cardContainer,
-        backgroundImage: `url(${process.env.PUBLIC_ASSETS_URL}/static/emoji-cards/images/${imgPath})`,
-      }}
-    >
-      <h2 style={styles.emojiBg}>Header 1</h2>
+      <h2 style={styles.emojiH2}>A Year of Helping Cultivate Change</h2>
+      <p style={styles.emojip}>
+        One year ago on World Soil Day, the NUTRO™ brand announced the launch of
+        the Greater Ground™ program, which aims to grow awareness of the
+        importance of healthy soil and encourage select growers in our network
+        to implement to healthy soil practices by providing training, support
+        and funding. We want to celebrate all that's been accomplished in the
+        program's first year.
+      </p>
     </div>
   </div>
 );

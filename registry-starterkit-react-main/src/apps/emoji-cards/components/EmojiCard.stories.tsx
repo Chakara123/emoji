@@ -8,19 +8,6 @@ const stories: Meta = {
   title: 'Widgets/Emoji Cards/Components',
   component: EmojiCards,
   decorators: [storyWithTranslation()],
-  argTypes: {
-    imgPath: {
-      control: 'select',
-      options: ['No Image', 'hello.jpg', 'articles_bg.jpg'],
-      description: 'Please Choose the Background Image.',
-      table: {
-        defaultValue: { summary: 'No Image' },
-      },
-    },
-  },
-  args: {
-    imgPath: 'hello.jpg',
-  },
 };
 
 const Template: StoryFn<EmojiCardsProps> = (args) => <EmojiCards {...args} />;
