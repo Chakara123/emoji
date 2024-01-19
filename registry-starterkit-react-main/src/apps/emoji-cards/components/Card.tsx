@@ -20,7 +20,8 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: 'helvetica, sans-serif',
     overflow: 'hidden',
     maxWidth: '100%',
-    height: '71rem',
+    height: '720px',
+    margin: '0',
   },
   cardContainer: {
     background: 'rgba(0, 0, 0, 0.1)',
@@ -33,19 +34,20 @@ const styles: Record<string, CSSProperties> = {
     padding: '1rem',
     width: '100%',
     backgroundRepeat: 'no-repeat',
-    backgroundSize: '100%',
+    backgroundSize: 'cover',
     borderRadius: '0.5rem',
     boxShadow: '0.125rem 0.125rem 0.5rem rgba(0, 0, 0, 0.1)',
+    margin: '0',
   },
   emojiH2: {
-    margin: '0',
-    fontSize: '2rem',
+    margin: '0 0 20px',
+    fontSize: '40px',
     lineHeight: '100%',
     color: '#fff',
   },
   emojip: {
-    margin: '1rem 0 0 0',
-    fontSize: '1.5rem',
+    margin: '0 0 10px',
+    fontSize: '16px',
     width: '75%',
     color: '#fff',
     lineHeight: '23px',
@@ -110,7 +112,7 @@ const Card = ({
     <div
       style={{
         ...styles.cardContainer,
-        backgroundImage: `url(https://lhcdn-src.mars.com/adaptivemedia/rendition/id_919e6e013d38db09d6d399277723fba84757fc90/name_919e6e013d38db09d6d399277723fba84757fc90.png)`,
+        backgroundImage: `url(https://lhcdn.mars.com/adaptivemedia/rendition/id_2f72f8b7f609711485a11d96a578f17236c49d8b/name_2f72f8b7f609711485a11d96a578f17236c49d8b.jpg)`,
       }}
     >
       <div style={styles.emojicontent}>
