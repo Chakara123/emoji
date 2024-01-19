@@ -20,7 +20,7 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: 'helvetica, sans-serif',
     overflow: 'hidden',
     maxWidth: '100%',
-    height: '33rem',
+    height: '41rem',
   },
   cardContainer: {
     background: 'rgba(0, 0, 0, 0.1)',
